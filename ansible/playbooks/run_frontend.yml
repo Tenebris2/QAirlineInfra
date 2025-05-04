@@ -1,0 +1,6 @@
+---
+- name: Install and run frontend
+  hosts: frontend
+  become: yes
+  roles:
+    - frontend_install

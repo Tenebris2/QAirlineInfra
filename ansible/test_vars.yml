@@ -1,0 +1,16 @@
+---
+- name: Test hostvars reference
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Show frontend host IP
+      debug:
+        msg: "Frontend host IP is: {{ hostvars['frontend']['ansible_host'] }}"
+
+    - name: Show backend host IP
+      debug:
+        msg: "Backend host IP is: {{ hostvars['backend']['ansible_host'] }}"
+
+    - name: Show database host IP
+      debug:
+        msg: "Database host IP is: {{ hostvars['database']['ansible_host'] }}"

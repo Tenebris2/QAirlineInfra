@@ -1,0 +1,15 @@
+- name: Pull frontend docker image
+  docker_image:
+    name: "{{ repo }}"
+    tag: "{{ frontend_tag }}"
+    source: pull
+- name: run frontend container
+  docker_container:
+    name: "{{ frontend_container_name }}"
+    image: "{{ repo }}:{{ frontend_tag }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "3000:3000"
+    env:
+      REACT_APP_BACKEND_URL: "{{ backend_url }}"

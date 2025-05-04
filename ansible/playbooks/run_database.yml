@@ -1,0 +1,6 @@
+---
+- name: Install and run database
+  hosts: database
+  become: yes
+  roles:
+    - database_install

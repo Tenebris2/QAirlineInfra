@@ -1,0 +1,33 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: install ca-certificates
+  apt:
+    name: ca-certificates
+    state: present
+
+- name: install curl
+  apt:
+    name: curl
+    state: present
+
+- name: Create directory /etc/apt/keyrings with permissions 0755
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+- name: save Docker gpg key
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+- name: grant permissions to the key
+  shell: chmod a+r /etc/apt/keyrings/docker.asc
+- name: add docker repository
+  shell: |
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+- name: Update apt cache
+  apt:
+    update_cache: yes

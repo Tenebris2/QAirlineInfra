@@ -1,0 +1,17 @@
+- name: Pull postgres docker image
+  docker_image:
+    name: "{{ repo }}"
+    tag: "{{ database_tag }}"
+    source: pull
+- name: run postgres container
+  docker_container:
+    name: "{{ database_container_name }}"
+    image: "{{ repo }}:{{ database_tag }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "5432:5432"
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: airline_db

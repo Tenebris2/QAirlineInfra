@@ -1,0 +1,19 @@
+- name: Pull backend docker image
+  docker_image:
+    name: "{{ repo }}"
+    tag: "{{ backend_tag }}"
+    source: pull
+- name: run backend container
+  docker_container:
+    name: "{{ backend_container_name }}"
+    image: "{{ repo }}:{{ backend_tag }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "8000:8000"
+    env:
+      DATABASE_URL: "{{ db_connection }}"
+      MAIL_USERNAME: testdummy123.dev@gmail.com
+      MAIL_PASSWORD: "islw zltx dwiz skdh"
+      MAIL_SERVER: smtp.gmail.com
+      SECRET_KEY: "123"

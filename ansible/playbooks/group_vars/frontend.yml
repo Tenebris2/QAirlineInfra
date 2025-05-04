@@ -1,0 +1,4 @@
+repo: "tenebris2/qairline-repo"
+frontend_tag: "frontend"
+frontend_container_name: "frontend"
+backend_url: "http://{{ hostvars['backend_host']['ansible_host'] }}:8000"

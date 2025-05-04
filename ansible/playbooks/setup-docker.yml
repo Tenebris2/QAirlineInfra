@@ -1,0 +1,7 @@
+---
+- name: Install and verify docker
+  hosts: all
+  become: yes
+  roles:
+    - docker_install_prerequisites
+    - docker_install

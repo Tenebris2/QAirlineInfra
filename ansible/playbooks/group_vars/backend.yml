@@ -1,0 +1,5 @@
+repo: "tenebris2/qairline-repo"
+backend_tag: "backend"
+backend_container_name: "backend"
+
+db_connection: "postgresql://postgres:mysecretpassword@{{ hostvars['database_host']['ansible_host'] }}:5432/airline_db"
