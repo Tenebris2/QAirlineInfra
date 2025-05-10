@@ -1,9 +1,10 @@
-variable "cidr_block" {
-  description = "CIDR block for the VPC"
+variable "db_password" {
+  description = "RDS root user password"
   type        = string
+  sensitive   = true
 }
 
-variable "availabiliy_zone" {
-  description = "Availability zone for the subnet"
+variable "db_username" {
+  description = "RDS root user name"
   type        = string
 }

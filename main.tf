@@ -16,12 +16,25 @@ provider "aws" {
 }
 
 locals {
-  instance_count = 3
-  instance_type  = "t2.micro"
+  worker_nodes_count = 2
+  master_nodes_count = 1
+  instance_type      = "t2.micro"
+  db_instance_type   = "db.t3.micro"
+  db_engine          = "postgres"
+  db_engine_version  = "17.2"
+  availabiliy_zone_1 = "ap-southeast-1a"
+  availabiliy_zone_2 = "ap-southeast-1b"
+  cidr_block         = "10.0.0.0/16"
+  multi_az           = false
+  allocated_storage  = 5
+  http_port          = 80
+  https_port         = 443
+  ssh_port           = 22
+  postgres_port      = 5432
 }
 
 resource "aws_vpc" "demo_vpc" {
-  cidr_block           = var.cidr_block
+  cidr_block           = local.cidr_block
   enable_dns_hostnames = true
   enable_dns_support   = true
   tags = {
@@ -29,12 +42,17 @@ resource "aws_vpc" "demo_vpc" {
   }
 }
 
-resource "aws_subnet" "subnet" {
+resource "aws_subnet" "subnet_1" {
   cidr_block        = cidrsubnet(aws_vpc.demo_vpc.cidr_block, 8, 0)
   vpc_id            = aws_vpc.demo_vpc.id
-  availability_zone = var.availabiliy_zone
+  availability_zone = local.availabiliy_zone_1
 }
 
+resource "aws_subnet" "subnet_2" {
+  cidr_block        = cidrsubnet(aws_vpc.demo_vpc.cidr_block, 8, 1)
+  vpc_id            = aws_vpc.demo_vpc.id
+  availability_zone = local.availabiliy_zone_2
+}
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.demo_vpc.id
@@ -56,8 +74,8 @@ resource "aws_security_group" "security-allow-web" {
       "0.0.0.0/0"
     ]
 
-    from_port = 80
-    to_port   = 80
+    from_port = local.http_port
+    to_port   = local.http_port
     protocol  = "tcp"
   }
 
@@ -86,8 +104,8 @@ resource "aws_security_group" "security-allow-web" {
       "0.0.0.0/0"
     ]
 
-    from_port = 443
-    to_port   = 443
+    from_port = local.https_port
+    to_port   = local.https_port
     protocol  = "tcp"
   }
 
@@ -109,8 +127,8 @@ resource "aws_security_group" "security-allow-ssh" {
       "0.0.0.0/0"
     ]
 
-    from_port = 22
-    to_port   = 22
+    from_port = local.ssh_port
+    to_port   = local.ssh_port
     protocol  = "tcp"
   }
 
@@ -132,8 +150,8 @@ resource "aws_security_group" "security-allow-db-access" {
       "0.0.0.0/0"
     ]
 
-    from_port = 5432
-    to_port   = 5432
+    from_port = local.postgres_port
+    to_port   = local.postgres_port
     protocol  = "tcp"
   }
 
@@ -145,6 +163,39 @@ resource "aws_security_group" "security-allow-db-access" {
   }
 }
 
+resource "aws_db_subnet_group" "db_subnet_group" {
+  name       = "db-subnet-group"
+  subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id]
+  tags = {
+    Name = "My DB subnet group"
+  }
+}
+
+resource "aws_db_instance" "postgres_db" {
+  identifier             = "postgres-db"
+  instance_class         = local.db_instance_type
+  allocated_storage      = local.allocated_storage
+  engine                 = local.db_engine
+  engine_version         = local.db_engine_version
+  username               = var.db_username
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.security-allow-db-access.id]
+  parameter_group_name   = aws_db_parameter_group.postgres_db.name
+  multi_az               = local.multi_az
+  publicly_accessible    = true
+  skip_final_snapshot    = true
+}
+
+resource "aws_db_parameter_group" "postgres_db" {
+  name   = "postgres-db-parameter-group"
+  family = "postgres17"
+
+  parameter {
+    name  = "log_connections"
+    value = "1"
+  }
+}
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -160,53 +211,31 @@ resource "aws_key_pair" "ssh_key" {
   key_name   = "my-ec2-key-pair"
   public_key = file("~/.ssh/id_rsa.pub")
 }
-
-
-resource "aws_instance" "frontend" {
+resource "aws_instance" "master_nodes" {
+  count                       = local.master_nodes_count
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = local.instance_type
   key_name                    = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = true
   security_groups             = ["${aws_security_group.security-allow-ssh.id}", "${aws_security_group.security-allow-web.id}"]
   tags = {
-    Name = "frontend"
+    Name = "worker_nodes"
   }
-  subnet_id = aws_subnet.subnet.id
+  subnet_id = aws_subnet.subnet_1.id
 }
 
-resource "aws_instance" "backend" {
+resource "aws_instance" "worker_nodes" {
+  count                       = local.worker_nodes_count
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = local.instance_type
   key_name                    = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = true
   security_groups             = ["${aws_security_group.security-allow-ssh.id}", "${aws_security_group.security-allow-web.id}"]
   tags = {
-    Name = "backend"
+    Name = "worker_nodes"
   }
-  subnet_id = aws_subnet.subnet.id
-}
-
-resource "aws_instance" "db" {
-  ami                         = data.aws_ami.ubuntu.id
-  instance_type               = local.instance_type
-  key_name                    = aws_key_pair.ssh_key.key_name
-  associate_public_ip_address = true
-  security_groups             = ["${aws_security_group.security-allow-ssh.id}", "${aws_security_group.security-allow-db-access.id}"]
-  tags = {
-    Name = "postgres-db"
-  }
-  subnet_id = aws_subnet.subnet.id
+  subnet_id = aws_subnet.subnet_1.id
 }
 
 
-output "frontend_public_ip" {
-  value = aws_instance.frontend.public_ip
-}
 
-output "backend_public_ip" {
-  value = aws_instance.backend.public_ip
-}
-
-output "db_public_ip" {
-  value = aws_instance.db.public_ip
-}
