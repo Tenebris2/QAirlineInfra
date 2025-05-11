@@ -140,6 +140,96 @@ resource "aws_security_group" "security-allow-ssh" {
   }
 }
 
+
+resource "aws_security_group" "security-allow-cluster-worker" {
+  name   = "worker-node-security-group"
+  vpc_id = aws_vpc.demo_vpc.id
+
+  # Kubelet API
+  ingress {
+    from_port   = 10250
+    to_port     = 10250
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Kubelet API"
+  }
+
+  # kube-proxy
+  ingress {
+    from_port   = 10256
+    to_port     = 10256
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "kube-proxy"
+  }
+
+  # NodePort Services
+  ingress {
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "NodePort Services"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+resource "aws_security_group" "security-allow-cluster-control-plane" {
+  name   = "allow-k8s-control-plane"
+  vpc_id = aws_vpc.demo_vpc.id
+
+  ingress {
+    from_port   = 6443
+    to_port     = 6443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Kubernetes API server"
+  }
+
+  ingress {
+    from_port   = 2379
+    to_port     = 2380
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "etcd server client API"
+  }
+
+  ingress {
+    from_port   = 10250
+    to_port     = 10250
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Kubelet API"
+  }
+
+  ingress {
+    from_port   = 10259
+    to_port     = 10259
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "kube-scheduler"
+  }
+
+  ingress {
+    from_port   = 10257
+    to_port     = 10257
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "kube-controller-manager"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
 resource "aws_security_group" "security-allow-db-access" {
   name = "allow-db-access"
 
@@ -217,7 +307,7 @@ resource "aws_instance" "master_nodes" {
   instance_type               = local.instance_type
   key_name                    = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = true
-  security_groups             = ["${aws_security_group.security-allow-ssh.id}", "${aws_security_group.security-allow-web.id}"]
+  security_groups             = ["${aws_security_group.security-allow-ssh.id}", "${aws_security_group.security-allow-web.id}", "${aws_security_group.security-allow-cluster-control-plane.id}"]
   tags = {
     Name = "worker_nodes"
   }
@@ -230,7 +320,7 @@ resource "aws_instance" "worker_nodes" {
   instance_type               = local.instance_type
   key_name                    = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = true
-  security_groups             = ["${aws_security_group.security-allow-ssh.id}", "${aws_security_group.security-allow-web.id}"]
+  security_groups             = ["${aws_security_group.security-allow-ssh.id}", "${aws_security_group.security-allow-web.id}", "${aws_security_group.security-allow-cluster-worker.id}"]
   tags = {
     Name = "worker_nodes"
   }

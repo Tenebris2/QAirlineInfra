@@ -1,0 +1,13 @@
+---
+- name: Install k8s dependencies
+  hosts: all
+  become: yes
+  roles:
+    - docker_install_prerequisites
+    - kubernetes_install_dependencies
+
+- name: Install master nodes
+  hosts: master
+  become: yes
+  roles:
+    - kubernetes_install_master

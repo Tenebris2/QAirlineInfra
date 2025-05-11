@@ -18,7 +18,7 @@ output "rds_username" {
 }
 
 
-output "worker_node_public_ips" {
+output "worker_nodes_public_ips" {
   value = [for instance in aws_instance.worker_nodes : instance.public_ip]
 }
 
