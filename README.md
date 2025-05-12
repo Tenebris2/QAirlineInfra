@@ -1,3 +1,21 @@
+
+# QAirline Cloud Infrastructure
+
+## Infrastructure Overview
+
+
+End users initiate requests through **Amazon CloudFront**, which serves as a global content delivery network (CDN) providing low-latency access, HTTPS support, and custom domain integration.
+
+Static assets for the **React frontend** are hosted on **Amazon S3**, and CloudFront caches and delivers this content efficiently to users.
+
+Once the frontend is loaded, subsequent data requests from the client are routed through **Amazon API Gateway**, which acts as a secure and scalable entry point for backend services. API Gateway forwards these requests to an **Application Load Balancer (ALB)** integrated with an **Amazon EKS** (Elastic Kubernetes Service) cluster via Kubernetes Ingress.
+
+Within the EKS cluster, backend services run in scalable Pods, processing requests and managing business logic. These services interact with a **relational database** hosted on **Amazon RDS** (Relational Database Service) for persistent data storage.
+
+This architecture ensures scalability, security, and high availability across both frontend and backend components.
+
+![](assets/cloud_infra.png)
+
 # How to run
 
 
