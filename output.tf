@@ -26,3 +26,7 @@ output "master_nodes_public_ips" {
   value = [for instance in aws_instance.master_nodes : instance.public_ip]
 }
 
+output "cloudfront_url" {
+  value = aws_cloudfront_distribution.website_cdn.domain_name
+}
+

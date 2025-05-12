@@ -1,15 +1,7 @@
 # script to automate ip address generation to ansible inventory
 
-import os
 import json
-
-
-def run_cmd(cmd):
-    """
-    Run a shell command and return the output.
-    """
-    result = os.popen(cmd).read()
-    return result
+from scripts.helper import run_cmd
 
 
 def generate_inventory():

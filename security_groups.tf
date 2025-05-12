@@ -126,4 +126,43 @@ resource "aws_security_group" "security-allow-cluster-control-plane" {
     from_port   = 10259
     to_port     = 10259
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0]()_
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "kube-scheduler"
+  }
+  ingress {
+    from_port   = 10257
+    to_port     = 10257
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "kube-controller-manager"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+resource "aws_security_group" "security-allow-db-access" {
+  name = "allow-db-access"
+
+  vpc_id = aws_vpc.demo_vpc.id
+
+  ingress {
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+
+    from_port = local.postgres_port
+    to_port   = local.postgres_port
+    protocol  = "tcp"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
