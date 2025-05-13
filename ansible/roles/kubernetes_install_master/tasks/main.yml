@@ -41,6 +41,17 @@
     remote_src: yes
     owner: ubuntu
 
+- name: Wait for Kubernetes API server to be ready
+  uri:
+    url: http://localhost:8080/healthz
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10
+  ignore_errors: false
+
 - name: install Pod network
   shell: kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml >> pod_network_setup.log
   args:

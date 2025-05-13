@@ -1,0 +1,19 @@
+---
+- name: Deploy backend to k8s cluster
+  hosts: master
+  become: yes
+  tasks:
+    - name: Download k8s deployment file
+      get_url:
+        url: https://raw.githubusercontent.com/Tenebris2/QAirlineInfra/refs/heads/main/cluster/backend-deployment.yaml
+        dest: /home/ubuntu/deployment.yaml
+    - name: Copy secret.yaml to remote
+      copy:
+        src: "/media/ssd-partition/Documents/Hoc-Tap-UET/Hoc Tap UET/Web/Project/QAirlineInfra/cluster/secret.yaml"
+        dest: /home/ubuntu/secrets.yaml
+        mode: "0600"
+    - name: Deploy backend to k8s cluster
+      shell: |
+        kubectl apply -f /home/ubuntu/.
+      register: deploy_backend
+      ignore_errors: yes

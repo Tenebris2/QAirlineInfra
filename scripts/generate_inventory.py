@@ -1,7 +1,7 @@
 # script to automate ip address generation to ansible inventory
 
 import json
-from scripts.helper import run_cmd
+from helper import run_cmd
 
 
 def generate_inventory():
