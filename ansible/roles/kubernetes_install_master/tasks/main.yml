@@ -8,21 +8,21 @@
     dest: /etc/kubernetes/kubeadm-config.yaml
     force: no
 #
-# - name: configuring the container runtime including its cgroup driver
-#   blockinfile:
-#     path: /etc/kubernetes/kubeadm-config.yaml
-#     block: |
-#       kind: ClusterConfiguration
-#       apiVersion: kubeadm.k8s.io/v1beta3
-#       networking:
-#         podSubnet: "10.244.0.0/16"
-#       ---
-#       kind: KubeletConfiguration
-#       apiVersion: kubelet.config.k8s.io/v1beta1
-#       runtimeRequestTimeout: "15m"
-#       cgroupDriver: "systemd"
-#       enforceNodeAllocatable:
-#       - pods
+- name: configuring the container runtime including its cgroup driver
+  blockinfile:
+    path: /etc/kubernetes/kubeadm-config.yaml
+    block: |
+      kind: ClusterConfiguration
+      apiVersion: kubeadm.k8s.io/v1beta3
+      networking:
+        podSubnet: "10.244.0.0/16"
+      ---
+      kind: KubeletConfiguration
+      apiVersion: kubelet.config.k8s.io/v1beta1
+      runtimeRequestTimeout: "15m"
+      cgroupDriver: "systemd"
+      enforceNodeAllocatable:
+      - pods
 
 - name: initialize the cluster (this could take some time)
   shell: kubeadm init --ignore-preflight-errors=NumCPU,Mem
@@ -40,20 +40,3 @@
     dest: /home/ubuntu/.kube/config
     remote_src: yes
     owner: ubuntu
-
-- name: Wait for Kubernetes API server to be ready
-  uri:
-    url: http://localhost:8080/healthz
-    method: GET
-    status_code: 200
-  register: result
-  until: result.status == 200
-  retries: 30
-  delay: 10
-  ignore_errors: false
-
-- name: install Pod network
-  shell: kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml >> pod_network_setup.log
-  args:
-    chdir: /home/ubuntu
-    creates: pod_network_setup.log

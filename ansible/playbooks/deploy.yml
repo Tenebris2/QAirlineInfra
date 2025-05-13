@@ -11,7 +11,6 @@
       copy:
         src: "/media/ssd-partition/Documents/Hoc-Tap-UET/Hoc Tap UET/Web/Project/QAirlineInfra/cluster/secret.yaml"
         dest: /home/ubuntu/secrets.yaml
-        mode: "0600"
     - name: Deploy backend to k8s cluster
       shell: |
         kubectl apply -f /home/ubuntu/.

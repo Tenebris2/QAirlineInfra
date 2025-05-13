@@ -1,4 +1,27 @@
+# Security Group for the ALB
+resource "aws_security_group" "alb_sg" {
+  name        = "k8s-alb-sg"
+  description = "Security group for Kubernetes ALB"
+  vpc_id      = aws_vpc.demo_vpc.id
 
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allow HTTP from anywhere (adjust for security)
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "k8s-alb-sg"
+  }
+}
 resource "aws_security_group" "security-allow-web" {
   name   = "allow-http-https"
   vpc_id = aws_vpc.demo_vpc.id
