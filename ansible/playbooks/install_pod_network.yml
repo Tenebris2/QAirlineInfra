@@ -3,17 +3,7 @@
   hosts: master
   tasks:
     - name: Install Pod network
-      shell: kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
-
-- name: Create subnet.env files
-  hosts: all
-  become: yes
-  tasks:
-    - name: Create subnet.env files
-      copy:
-        dest: /run/flannel/subnet.env
-        content: |
-          FLANNEL_NETWORK=10.244.0.0/16
-          FLANNEL_SUBNET=10.244.0.1/24
-          FLANNEL_MTU=1450
-          FLANNEL_IPMASQ=true
+      shell: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/v0.26.3/Documentation/kube-flannel.yml
+      args:
+        chdir: /home/ubuntu
+        creates: pod_network_setup.log

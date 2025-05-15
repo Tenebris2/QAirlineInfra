@@ -17,7 +17,6 @@ output "rds_username" {
   value       = aws_db_instance.postgres_db.username
 }
 
-
 output "worker_nodes_public_ips" {
   value = [for instance in aws_instance.worker_nodes : instance.public_ip]
 }

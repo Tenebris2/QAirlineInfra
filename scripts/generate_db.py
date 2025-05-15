@@ -17,11 +17,14 @@ print(mail_server)
 
 
 def generate_db():
-    connection_string = run_cmd("terraform output rds_endpoint")
+    connection_string = run_cmd("terraform output rds_endpoint").strip()[1:-1]
     print(connection_string)
     cmd = f"psql postgresql://{postgres_user}:{postgres_password}@{connection_string}"
 
+    run_cmd(cmd + " -c 'CREATE DATABASE airline_db;'")
+    run_cmd(cmd + "/airline_db -f scripts/db/init.db")
     print(cmd + " -c 'CREATE DATABASE airline_db;'")
+    print(cmd + "/airline_db -f ./scripts/db/init.sql")
     with open(
         cwd + "/cluster/secret.yaml",
         "w",
@@ -34,7 +37,7 @@ metadata:
   name: my-app-secrets
 type: Opaque
 stringData:
-  DATABASE_URL: "{connection_string}/airline_db"
+  DATABASE_URL: "{cmd[5:]}/airline_db"
   MAIL_USERNAME: "{mail_username}"
   MAIL_PASSWORD: "{mail_password}"
   MAIL_SERVER: "{mail_server}"

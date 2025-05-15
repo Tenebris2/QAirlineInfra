@@ -11,6 +11,13 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"] # Allow HTTP from anywhere (adjust for security)
   }
 
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # Allow HTTP from anywhere (adjust for security)
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -166,7 +173,25 @@ resource "aws_security_group" "security-allow-cluster-control-plane" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+
+  ingress {
+    from_port   = 8285
+    to_port     = 8285
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Flannel UDP backend"
+  }
+
+  ingress {
+    from_port   = 8472
+    to_port     = 8472
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Flannel VXLAN"
+  }
 }
+
 resource "aws_security_group" "security-allow-db-access" {
   name = "allow-db-access"
 
@@ -189,3 +214,4 @@ resource "aws_security_group" "security-allow-db-access" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+

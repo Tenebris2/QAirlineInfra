@@ -8,24 +8,8 @@
     dest: /etc/kubernetes/kubeadm-config.yaml
     force: no
 #
-- name: configuring the container runtime including its cgroup driver
-  blockinfile:
-    path: /etc/kubernetes/kubeadm-config.yaml
-    block: |
-      kind: ClusterConfiguration
-      apiVersion: kubeadm.k8s.io/v1beta3
-      networking:
-        podSubnet: "10.244.0.0/16"
-      ---
-      kind: KubeletConfiguration
-      apiVersion: kubelet.config.k8s.io/v1beta1
-      runtimeRequestTimeout: "15m"
-      cgroupDriver: "systemd"
-      enforceNodeAllocatable:
-      - pods
-
 - name: initialize the cluster (this could take some time)
-  shell: kubeadm init --ignore-preflight-errors=NumCPU,Mem
+  shell: kubeadm init --ignore-preflight-errors=NumCPU,Mem --pod-network-cidr=10.244.0.0/16
   args:
     creates: /etc/kubernetes/manifests/kube-apiserver.yaml
 - name: Create .kube directory

@@ -10,7 +10,9 @@ BUCKET_NAME = os.getenv("BUCKET_NAME", "qairline-website-react-bucket")
 
 def deploy_frontend_to_s3():
     print("Running frontend build...")
-    cmd = f"aws s3 sync '{FRONTEND_BUILD_DIR}' s3://{BUCKET_NAME}/"
+    cmd = (
+        f"aws s3 sync '{FRONTEND_BUILD_DIR}' s3://{BUCKET_NAME}/ --profile devops-user"
+    )
     print(f"Running {cmd}")
     run_cmd(cmd)
 

@@ -20,7 +20,7 @@ resource "aws_lb_target_group" "k8s_tg" {
   target_type = "instance"
 
   health_check {
-    path                = "/health" # Adjust based on your app's health check endpoint
+    path                = "/docs" # Adjust based on your app's health check endpoint
     protocol            = "HTTP"
     matcher             = "200"
     interval            = 30
