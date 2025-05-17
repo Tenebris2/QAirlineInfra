@@ -14,8 +14,6 @@ Within the EKS cluster, backend services run in scalable Pods, processing reques
 
 This architecture ensures scalability, security, and high availability across both frontend and backend components.
 
-![](assets/cloud_infra.png)
-
 # How to run
 
 
