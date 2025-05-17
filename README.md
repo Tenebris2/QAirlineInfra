@@ -3,16 +3,17 @@
 
 ## Infrastructure Overview
 
+End users initiate requests through **Amazon CloudFront**, a global content delivery network (CDN) that ensures low-latency access, HTTPS encryption, and support for custom domains.
 
-End users initiate requests through **Amazon CloudFront**, which serves as a global content delivery network (CDN) providing low-latency access, HTTPS support, and custom domain integration.
+Static assets for the **ReactJS frontend** are stored in an **Amazon S3** bucket, with CloudFront efficiently caching and delivering these assets to users worldwide.
 
-Static assets for the **React frontend** are hosted on **Amazon S3**, and CloudFront caches and delivers this content efficiently to users.
+Once the frontend is loaded, client-side API calls are routed through **CloudFront** using the `/api/*` path prefix. These requests are forwarded to an **Application Load Balancer (ALB)**, which serves as the entry point for backend traffic.
 
-Once the frontend is loaded, subsequent data requests from the client are routed through **Amazon API Gateway**, which acts as a secure and scalable entry point for backend services. API Gateway forwards these requests to an **Application Load Balancer (ALB)** integrated with an **Amazon EKS** (Elastic Kubernetes Service) cluster via Kubernetes Ingress.
+The ALB is integrated with a self managed **Kubernetes cluster **via a target group. Inside the cluster, backend services are deployed as scalable Pods that handle application logic and respond to API requests.
 
-Within the EKS cluster, backend services run in scalable Pods, processing requests and managing business logic. These services interact with a **relational database** hosted on **Amazon RDS** (Relational Database Service) for persistent data storage.
+These services interact with a **relational database** hosted on **Amazon RDS**, ensuring reliable and persistent data storage.
 
-This architecture ensures scalability, security, and high availability across both frontend and backend components.
+This architecture provides a secure, scalable, and high-performance environment for delivering modern web applications.
 
 # How to run
 
