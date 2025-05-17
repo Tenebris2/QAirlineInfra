@@ -17,6 +17,6 @@
         kubectl apply -f /home/ubuntu/.
       register: deploy_backend
       ignore_errors: yes
-    - name: Restart CoreDNS (dont ask why -> Because dns wont work)
+    - name: Restart CoreDNS
       shell: |
         kubectl rollout restart deployment coredns -n kube-system

@@ -1,3 +1,4 @@
+
 resource "aws_cloudfront_origin_access_control" "cloudfront_oac" {
   name                              = "My_Cloudfront-OAC"
   description                       = "The origin access control configuration for the Cloudfront distribution"
@@ -16,8 +17,8 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   }
 
   origin {
-    domain_name = aws_lb.k8s_alb.dns_name
-    origin_id   = "api-alb-origin"
+    domain_name = "${aws_apigatewayv2_api.api.id}.execute-api.${local.region}.amazonaws.com"
+    origin_id   = "api-origin"
 
     custom_origin_config {
       http_port              = 80
@@ -52,7 +53,7 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     path_pattern     = "/admin/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "api-alb-origin"
+    target_origin_id = "api-origin"
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
@@ -68,11 +69,12 @@ resource "aws_cloudfront_distribution" "website_cdn" {
     default_ttl = 0
     max_ttl     = 0
   }
+
   ordered_cache_behavior {
     path_pattern     = "/api/*"
     allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "api-alb-origin"
+    target_origin_id = "api-origin"
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true

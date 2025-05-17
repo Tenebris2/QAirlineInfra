@@ -52,3 +52,4 @@ resource "aws_lb_listener" "k8s_listener" {
     target_group_arn = aws_lb_target_group.k8s_tg.arn
   }
 }
+

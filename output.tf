@@ -29,3 +29,10 @@ output "cloudfront_url" {
   value = aws_cloudfront_distribution.website_cdn.domain_name
 }
 
+output "alb_url" {
+  value = aws_lb.k8s_alb.dns_name
+}
+
+output "apigw_endpoint" {
+  value = aws_apigatewayv2_api.api.api_endpoint
+}

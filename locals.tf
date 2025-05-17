@@ -15,4 +15,5 @@ locals {
   https_port         = 443
   ssh_port           = 22
   postgres_port      = 5432
+  region             = "ap-southeast-1"
 }
