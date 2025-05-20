@@ -63,7 +63,19 @@ Provide the following details when prompted:
 
 This creates a `devops-user` profile in your `~/.aws/credentials` and `~/.aws/config` files.
 
-### 4. Run the Infrastructure Setup
+### 4. Download dependencies
+Install Ansible:
+```bash
+pip install ansible
+```
+Go to this link and download Terraform: https://developer.hashicorp.com/terraform/install#darwin
+
+Run the following command:
+```bash
+cd qairlineinfra
+terraform init
+```
+### 5. Run the Infrastructure Setup
 
 Navigate to the `qairlineinfra` directory:
 
