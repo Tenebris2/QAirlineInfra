@@ -122,3 +122,76 @@ resource "aws_sns_topic_subscription" "email" {
   protocol  = "email"
   endpoint  = var.alert_email
 }
+
+resource "aws_cloudwatch_dashboard" "main" {
+  dashboard_name = "QAirline-Monitoring"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "AWS/ApplicationELB", "HTTPCode_ELB_5XX_Count", "LoadBalancer", "${aws_lb.k8s_alb.arn_suffix}" ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "ap-southeast-1",
+          "title": "ALB 5XX Errors"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 0,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "AWS/EC2", "CPUUtilization", "InstanceId", "${aws_instance.worker_nodes[0].id}" ]
+          ],
+          "period": 300,
+          "stat": "Average",
+          "region": "ap-southeast-1",
+          "title": "EC2 Worker Node 0 CPU"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 0,
+        "y": 6,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${aws_db_instance.postgres_db.id}" ]
+          ],
+          "period": 300,
+          "stat": "Average",
+          "region": "ap-southeast-1",
+          "title": "RDS CPU Utilization"
+        }
+      },
+      {
+        "type": "metric",
+        "x": 12,
+        "y": 6,
+        "width": 12,
+        "height": 6,
+        "properties": {
+          "metrics": [
+            [ "AWS/ApiGateway", "Count", "ApiId", "${aws_apigatewayv2_api.api.id}" ]
+          ],
+          "period": 300,
+          "stat": "Sum",
+          "region": "ap-southeast-1",
+          "title": "API Gateway Request Count"
+        }
+      }
+    ]
+  })
+}
