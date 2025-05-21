@@ -13,6 +13,8 @@ The ALB is integrated with a self managed **Kubernetes cluster **via a target gr
 
 These services interact with a **relational database** hosted on **Amazon RDS**, ensuring reliable and persistent data storage.
 
+To ensure observability and reliability, the entire system is integrated with Amazon CloudWatch. Logs from ALB, CloudFront, API Gateway, EC2 nodes, and RDS are collected and stored in CloudWatch Logs or S3 buckets, while key metrics such as CPU utilization, error rates, and request counts are continuously tracked for services like ALB, EC2, RDS, and API Gateway. Alarms are configured to notify via SNS/email when thresholds are breached (e.g., high CPU, 5XX errors), and a CloudWatch Dashboard offers a real-time, unified view of system health and performance.
+
 This architecture provides a secure, scalable, and high-performance environment for delivering modern web applications.
 
 # QairlineInfra Setup and Run Guide
