@@ -21,6 +21,7 @@ resource "aws_db_instance" "postgres_db" {
   multi_az               = local.multi_az
   publicly_accessible    = true
   skip_final_snapshot    = true
+  enabled_cloudwatch_logs_exports = ["postgresql"]
 }
 
 resource "aws_db_parameter_group" "postgres_db" {

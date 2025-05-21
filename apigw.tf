@@ -28,4 +28,9 @@ resource "aws_apigatewayv2_stage" "default_stage" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
   auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.apigw_log_group.arn
+    format          = "$context.requestId $context.identity.sourceIp $context.httpMethod $context.path $context.status"
+  }
 }

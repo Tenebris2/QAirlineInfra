@@ -26,3 +26,8 @@ variable "object_ownership" {
   type        = string
   default     = "BucketOwnerPreferred"
 }
+
+variable "alert_email" {
+  description = "Email nhận cảnh báo CloudWatch"
+  type        = string
+}

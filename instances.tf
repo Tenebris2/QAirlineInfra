@@ -31,6 +31,13 @@ resource "aws_instance" "master_nodes" {
   tags = {
     Name = "master_nodes"
   }
+   user_data = <<-EOF
+    #!/bin/bash
+    sudo apt-get update
+    sudo apt-get install -y amazon-cloudwatch-agent
+    sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+      -a fetch-config -m ec2 -c default -s
+  EOF
 }
 
 resource "aws_instance" "worker_nodes" {
@@ -49,4 +56,11 @@ resource "aws_instance" "worker_nodes" {
   tags = {
     Name = "worker_nodes"
   }
+   user_data = <<-EOF
+    #!/bin/bash
+    sudo apt-get update
+    sudo apt-get install -y amazon-cloudwatch-agent
+    sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+      -a fetch-config -m ec2 -c default -s
+  EOF
 }

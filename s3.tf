@@ -10,6 +10,17 @@ resource "aws_s3_bucket" "deployment_bucket" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket" "s3_access_logs" {
+  bucket        = "qairline-s3-access-logs-${random_id.suffix.hex}"
+  force_destroy = true
+}
+
+resource "aws_s3_bucket_logging" "deployment_bucket_logging" {
+  bucket        = aws_s3_bucket.deployment_bucket.id
+  target_bucket = aws_s3_bucket.s3_access_logs.id
+  target_prefix = "s3-access-logs/"
+}
+
 # Configure the bucket as a website
 resource "aws_s3_bucket_website_configuration" "website_config" {
   bucket = aws_s3_bucket.deployment_bucket.id

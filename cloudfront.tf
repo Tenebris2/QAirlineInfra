@@ -110,5 +110,10 @@ resource "aws_cloudfront_distribution" "website_cdn" {
   tags = {
     Created_By = var.created_by
   }
+  logging_config {
+    bucket = aws_s3_bucket.cloudfront_logs.bucket_domain_name
+    include_cookies = false
+    prefix = "cloudfront-logs/"
+  }
 }
 
