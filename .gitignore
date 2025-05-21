@@ -5,3 +5,4 @@ cluster/secret.yaml
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.*
+.auto.tfvars
