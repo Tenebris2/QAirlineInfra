@@ -3,19 +3,53 @@
 
 ## Infrastructure Overview
 
-End users initiate requests through **Amazon CloudFront**, a global content delivery network (CDN) that ensures low-latency access, HTTPS encryption, and support for custom domains.
+End users initiate requests through **Amazon CloudFront**, which serves as a global content delivery network (CDN) providing low-latency access, HTTPS support, and custom domain integration.
 
-Static assets for the **ReactJS frontend** are stored in an **Amazon S3** bucket, with CloudFront efficiently caching and delivering these assets to users worldwide.
+Static assets for the **React frontend** are hosted on **Amazon S3**, and **CloudFront** caches and delivers this content efficiently to users.
 
-Once the frontend is loaded, client-side API calls are routed through **CloudFront** using the `/api/*` path prefix. These requests are forwarded to an **Application Load Balancer (ALB)**, which serves as the entry point for backend traffic.
+Once the frontend is loaded through user's browser, data requests from the client are routed through **Cloudfront** for caching then into an **API Gateway** which is also protected by **AWS WAF** and **AWS Shield**, this acts as a secure and scalable entry point for backend services, the reason for this architecture is because Cloudfront acts as a cache which can help reduce api requests, in turn reduces cost. API Gateway forwards these requests to an **Application Load Balancer (ALB)** integrated with an Kubernetes cluster.
 
-The ALB is integrated with a self managed **Kubernetes cluster **via a target group. Inside the cluster, backend services are deployed as scalable Pods that handle application logic and respond to API requests.
+Within the cluster, backend services run in scalable Pods, processing requests and managing business logic. These services interact with a **relational database** hosted on **Amazon RDS** (Relational Database Service) for persistent data storage.
 
-These services interact with a **relational database** hosted on **Amazon RDS**, ensuring reliable and persistent data storage.
+The backend also uses **Amazon SES** (Simple Email Service) for sending emails, such as booking confirmations and notifications.
+
+The overall infrastructure is monitored using **Amazon CloudWatch**, which provides insights into application performance and resource utilization.
 
 To ensure observability and reliability, the entire system is integrated with Amazon CloudWatch. Logs from ALB, CloudFront, API Gateway, EC2 nodes, and RDS are collected and stored in CloudWatch Logs or S3 buckets, while key metrics such as CPU utilization, error rates, and request counts are continuously tracked for services like ALB, EC2, RDS, and API Gateway. Alarms are configured to notify via SNS/email when thresholds are breached (e.g., high CPU, 5XX errors), and a CloudWatch Dashboard offers a real-time, unified view of system health and performance.
 
-This architecture provides a secure, scalable, and high-performance environment for delivering modern web applications.
+![](assets/cloudinfra.png)
+
+## S3 buckets
+
+Our frontend is a React application that is built using the React framework, which is why we decided to use S3 to host the static files(a common cloud architecture). The S3 bucket is configured to be only accessible through Cloudfront.
+
+## EC2 Instances
+
+The EC2 instances are used to host the Kubernetes cluster, their primarily role serving as Kubernetes nodes. The instances are provisioned using Terraform and Ansible, and are configured to be part of the Kubernetes cluster.
+
+## Kubernetes and ALB
+
+The Kubernetes cluster is used to host the backend services, which was built using FastAPI. The cluster exposed using NodePort, which are then connected to a self-provisioned Application Load Balancer (ALB). The ALB is configured to route traffic to the appropriate Kubernetes nodes based on the NodePort.
+
+The reason why we used a self-hosted Kubernetes instead of using EKS is because we wanted things to stay in AWS Free Tier and keep it as cheap as possible. EKS is a managed service that comes with a cost, and we wanted to avoid that.
+
+## RDS 
+
+The backend services access the RDS database using the database connection string. The RDS database is used in 2 Available Zones(ap-southeast-1a, and ap-southeast-1b).
+
+## API Gateway
+
+The API Gateway is used to expose the backend services to the internet. The API Gateway is configured to route traffic to the ALB, which in turn routes traffic to the Kubernetes cluster. The API Gateway is also configured to use AWS WAF and AWS Shield for security.
+
+## CloudFront
+
+The CloudFront distribution is used to cache the static files from the S3 bucket due to the fact that S3 does not support SSLk, and to route and cache traffic to the API Gateway to reduce API requests cost. The CloudFront distribution is configured to use HTTPS, and to cache the static files for a period of time.
+
+Cloudfront not only works as a CDN, but also works in reducing cost in data transfer of S3. 
+
+In the free tier pricing, S3 egress is begins charging at 100GB of data, while Cloudfront egress is free for the first 1TB of data. This means that if you have a lot of data transfer from S3, you will be charged for it, while if you use Cloudfront, you will not be charged for the first 1TB of data transfer, and adding to the fact that data from S3 to Cloudfront is free. Our frontend hosting cost is virtually non-existent.
+
+Moving past free tier, S3 egress (Data Transfer OUT from S3 to Internet) in the Asia Pacific (Singapore) region is $0.12 per GB for the first 10 GB, while CloudFront egress (Data Transfer OUT from CloudFront to Internet) is $0.085 per GB for the first 10 TB and only get cheaper from there. This means that if you have a lot of data transfer from S3, you will be charged for it, while if you use Cloudfront, you will not be charged for the first 1TB of data transfer, and adding to the fact that data from S3 to Cloudfront is free.
 
 # QairlineInfra Setup and Run Guide
 
@@ -100,3 +134,11 @@ To save, destroy the infrastructure after testing using
 ``` bash
 ./demolish.sh
 ```
+
+## Deploying React Frontend
+
+Run the **deploy_frontend_to_s3** python file in **scripts** directory
+
+## References
+
+Cloudfront in front of API Gateway: [https://www.stormit.cloud/blog/cloudfront-in-front-of-api-gateway/]
