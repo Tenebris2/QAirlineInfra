@@ -21,7 +21,7 @@ resource "aws_instance" "master_nodes" {
   instance_type               = local.instance_type
   key_name                    = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = true
-  security_groups             = [
+  security_groups = [
     aws_security_group.security-allow-ssh.id,
     aws_security_group.security-allow-web.id,
     aws_security_group.security-allow-cluster-control-plane.id
@@ -31,7 +31,7 @@ resource "aws_instance" "master_nodes" {
   tags = {
     Name = "master_nodes"
   }
-   user_data = <<-EOF
+  user_data = <<-EOF
     #!/bin/bash
     sudo apt-get update
     sudo apt-get install -y amazon-cloudwatch-agent
@@ -46,7 +46,7 @@ resource "aws_instance" "worker_nodes" {
   instance_type               = local.instance_type
   key_name                    = aws_key_pair.ssh_key.key_name
   associate_public_ip_address = true
-  security_groups             = [
+  security_groups = [
     aws_security_group.security-allow-ssh.id,
     aws_security_group.security-allow-web.id,
     aws_security_group.security-allow-cluster-worker.id
@@ -56,7 +56,7 @@ resource "aws_instance" "worker_nodes" {
   tags = {
     Name = "worker_nodes"
   }
-   user_data = <<-EOF
+  user_data = <<-EOF
     #!/bin/bash
     sudo apt-get update
     sudo apt-get install -y amazon-cloudwatch-agent
