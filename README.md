@@ -41,17 +41,15 @@ The backend services access the RDS database using the database connection strin
 
 The API Gateway is used to expose the backend services to the internet. The API Gateway is configured to route traffic to the ALB, which in turn routes traffic to the Kubernetes cluster. The API Gateway is also configured to use AWS WAF and AWS Shield for security.
 
-The version of API Gateway we use is HTTP API and not REST API, because HTTP API is cheaper than REST API, and we do not need the features of REST API.
-
 ## CloudFront
 
-The CloudFront distribution is used to cache the static files from the S3 bucket due to the fact that S3 does not support SSL, and to route and cache traffic to the API Gateway to reduce egress cost. The CloudFront distribution is configured to use HTTPS, and to cache the static files for a period of time.
+The CloudFront distribution is used to cache the static files from the S3 bucket due to the fact that S3 does not support SSLk, and to route and cache traffic to the API Gateway to reduce API requests cost. The CloudFront distribution is configured to use HTTPS, and to cache the static files for a period of time.
 
 Cloudfront not only works as a CDN, but also works in reducing cost in data transfer of S3. 
 
 In the free tier pricing, S3 egress is begins charging at 100GB of data, while Cloudfront egress is free for the first 1TB of data. This means that if you have a lot of data transfer from S3, you will be charged for it, while if you use Cloudfront, you will not be charged for the first 1TB of data transfer, and adding to the fact that data from S3 to Cloudfront is free. Our frontend hosting cost is virtually non-existent.
 
-Moving past free tier, S3 egress (Data Transfer OUT from S3 to Internet) in the Asia Pacific (Singapore) region is $0.12 per GB for the first 10 GB, while CloudFront egress (Data Transfer OUT from CloudFront to Internet) is $0.085 per GB for the first 10 TB and only get cheaper from there. This means that using Cloudfront not only is faster for end users but also cheaper for us. The same also applies to API Gateway, where the data transfer cost is cheaper when using Cloudfront.
+Moving past free tier, S3 egress (Data Transfer OUT from S3 to Internet) in the Asia Pacific (Singapore) region is $0.12 per GB for the first 10 GB, while CloudFront egress (Data Transfer OUT from CloudFront to Internet) is $0.085 per GB for the first 10 TB and only get cheaper from there. This means that if you have a lot of data transfer from S3, you will be charged for it, while if you use Cloudfront, you will not be charged for the first 1TB of data transfer, and adding to the fact that data from S3 to Cloudfront is free.
 
 # QairlineInfra Setup and Run Guide
 
@@ -85,12 +83,12 @@ To quickly set up an IAM user with full administrative privileges:
 
 ### 3. Configure AWS CLI Profile
 
-Configure the AWS CLI with the `default` profile using the access key and secret key from the IAM user.
+Configure the AWS CLI with the `devops-user` profile using the access key and secret key from the IAM user.
 
 Run the following command:
 
 ```bash
-aws configure
+aws configure --profile devops-user
 ```
 
 Provide the following details when prompted:
@@ -99,7 +97,7 @@ Provide the following details when prompted:
 - **Default region name**: Enter your preferred AWS region (e.g., `us-east-1`).
 - **Default output format**: Enter `json` (or your preferred format).
 
-This creates a `default` profile in your `~/.aws/credentials` and `~/.aws/config` files.
+This creates a `devops-user` profile in your `~/.aws/credentials` and `~/.aws/config` files.
 
 ### 4. Download dependencies
 Install Ansible:

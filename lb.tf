@@ -11,7 +11,7 @@ resource "aws_lb" "k8s_alb" {
   tags = {
     Name = "k8s-alb"
   }
-  access_logs {
+   access_logs {
     bucket  = aws_s3_bucket.alb_logs.bucket
     enabled = true
   }
