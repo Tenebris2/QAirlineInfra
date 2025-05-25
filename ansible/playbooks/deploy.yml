@@ -9,7 +9,7 @@
       become: yes
     - name: Copy secret.yaml to remote
       copy:
-        src: "/media/ssd-partition/Documents/Hoc-Tap-UET/Hoc Tap UET/Web/Project/QAirlineInfra/cluster/secret.yaml"
+        src: "cluster/secret.yaml"
         dest: /home/ubuntu/secrets.yaml
       become: yes
     - name: Deploy backend to k8s cluster

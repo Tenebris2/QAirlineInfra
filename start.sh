@@ -1,6 +1,6 @@
 #!/bin/bash
 
-terraform apply --auto-approve
+terraform apply --auto-approve -var="alert_email=buiducanh567@gmail.com"
 
 python3 scripts/generate_inventory.py 
 python3 scripts/generate_db.py

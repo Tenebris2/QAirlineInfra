@@ -1,6 +1,6 @@
 # Create the bucket
 resource "aws_s3_bucket" "deployment_bucket" {
-  bucket = var.bucket_name
+  bucket = "${var.bucket_name}" + "-${random_id.suffix.hex}"
 
   tags = {
     Name       = var.bucket_name
